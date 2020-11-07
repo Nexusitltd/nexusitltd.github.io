@@ -132,22 +132,20 @@
 
             
 
-            <form action="#" class="p-5 bg-white">
+            <form id="contactForm" action="#" class="p-5 bg-white">
               
               <h2 class="h4 text-black mb-5">Contact Form</h2> 
 
-<!--
               <div class="row form-group">
                 <div class="col-md-6 mb-3 mb-md-0">
                   <label class="text-black" for="fname">First Name</label>
-                  <input type="text" id="fname" class="form-control">
+                  <input type="text" id="fname" class="form-control" required>
                 </div>
                 <div class="col-md-6">
                   <label class="text-black" for="lname">Last Name</label>
-                  <input type="text" id="lname" class="form-control">
+                  <input type="text" id="lname" class="form-control" required>
                 </div>
               </div>
--->
 
               <div class="row form-group">
                 
@@ -175,8 +173,8 @@
 
               <div class="row form-group">
                 <div class="col-md-12">
-                  <input id="contactBtn" type="button" value="Send Message" class="btn btn-primary btn-md text-white"
-                         onclick="sendEmail()">
+                  <button id="contactBtn" type="button" class="btn btn-primary btn-md text-white"
+                          onclick="sendEmail()">Send</button>
                 </div>
               </div>
 
@@ -292,16 +290,47 @@
 
   <script>
       function sendEmail() {
-          Email.send({
-              SecureToken : "de0fc5b5-b41c-4d93-b82c-5d1447937a09",
-              To : 'info@nexus-it.tech',
-              From : document.getElementById("email").value,
-              Subject : document.getElementById("subject").value,
-              Body : document.getElementById("message").value
-          }).then(
-              message => alert(message)
-          );
-          // document.getElementById("demo").style.color = "red";
+          if ($("#contactForm")[0].checkValidity()) {
+              try {
+                  var button = document.getElementById('contactBtn');
+                  button.innerText = 'Sending...';
+                  button.disabled = true;
+                  Email.send({
+                      SecureToken : "4a3bcb59-26d2-452d-bac5-5e57b4f65210",
+                      To : 'info@nexus-it.tech',
+                      From : 'vooc.nexusit@gmail.com',
+                      FromName : document.getElementById("fname").value + ' ' + document.getElementById("lname").value,
+                      ReplyAddress: document.getElementById("email").value,
+                      Subject : document.getElementById("subject").value,
+                      Body : document.getElementById("message").value
+                  }).then(
+                      message => {
+                          if (message != 'OK') {
+                              var button = document.getElementById('contactBtn');
+                              button.innerText = 'Send';
+                              button.disabled = false;
+                              alert(message);
+                          } else {
+                              document.getElementById('contactBtn').innerText = 'Successfully Sent...';
+                              setTimeout(function() {
+                                  var button = document.getElementById('contactBtn');
+                                  button.innerText = 'Send';
+                                  button.disabled = false;
+                                  $("#contactForm")[0].reset();
+                              }, 3000);
+                          }
+                      }
+                  );
+              } catch (e) {
+                  var button = document.getElementById('contactBtn');
+                  button.innerText = 'Send';
+                  button.disabled = false;
+                  alert("An error occurred. Please try again.");
+                  console.error(e);
+              }
+          } else {
+              $("#contactForm")[0].reportValidity();
+          }
       }
   </script>
 
